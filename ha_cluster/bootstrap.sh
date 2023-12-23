@@ -109,4 +109,4 @@ echo "source <(kubectl completion bash)" >> $HOME/.bashrc
 sudo usermod -aG docker $USER
 
 
-sudo shutdown now -r
+sudo shutdown now 
