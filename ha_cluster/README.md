@@ -19,7 +19,13 @@ In this example is used the "Stacked etcd Cluster" where etcd is stacked to mast
 
 # Configuration
 
+## Cluster Deployment
+
+Vagrant is used to deploy the virtual machines with minimum efforts. Check the Vagrantfile for details.
+
 ## Master Node
+
+Once the 
 
 In order to configure first master node, execute the following command:
 
@@ -65,6 +71,9 @@ kubeadm join 10.200.1.2:6443 --token hvlc8v.opw36dwb0wesnort \
         --discovery-token-ca-cert-hash sha256:8c0c7d69826e89d8bc72c11ee1b6e4c9d49ade1c68bf4696b4b9f9813f8d74a5
 ```
 
+>![WARNING]
+> Remember to --apiserver-advertise-address=<MASTER_IP> so that kubernetes is bound to correct IPs
+
 ### Container Network Interface
 It's required to use a Container Network Interface, in this case use Calico. If CNI is not installed, node will not start.
 
@@ -76,6 +85,11 @@ kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/
 vagrant@master-node1:~$ kubectl get nodes
 NAME           STATUS     ROLES           AGE    VERSION
 master-node1   NotReady   control-plane   7m1s   v1.26.11
+
+vagrant@master-node1:~$ kubectl get nodes
+NAME           STATUS   ROLES           AGE     VERSION
+master-node1   Ready    control-plane   8m28s   v1.26.11
+
 ```
 
 
