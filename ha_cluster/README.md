@@ -15,11 +15,31 @@ In this example is used the "Stacked etcd Cluster" where etcd is stacked to mast
 
 ## HAProxy Load Balancing
 
-## Services
+HAProxy is configured so that Load Balancing is achieved between control nodes 1 to 3.
+
+```shell
+frontend apiserver-master
+    bind 10.200.1.254:6443
+    mode tcp
+    option tcplog
+    default_backend apiserverbackend
+```
+
+In order to worker node traffic which is ranged on worker network 10.200.2.0/24 to reach APISERVER, it is required that HAProxy node routes traffic from one network another, which is achieved by setting systctl ipv4 forwarding to 1.
+
+```shell
+sudo sysctl -w net.ipv4.ip_forward=1
+echo 'sysctl -w net.ipv4.ip_forward=1' | sudo tee -a /etc/sysctl.conf
+```
 
 ## Requirements
 
-# Configuration
+* OS: Ubuntu 22.04
+* Control Nodes: 2 vCPU / 2 GB RAM
+* Master Nodes: 1 vCPU / 1 GB RAM
+* HAProxy: 1vCPU / 1 GB RAM
+
+# Configurationss
 
 ## Cluster Deployment
 
@@ -155,5 +175,15 @@ We will deploy nginx as the stateless application to check the behavior of the s
 Reference: https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/
 
 ```shell
-kubectl apply -f application_deployment.yaml
+kubectl apply -f https://k8s.io/examples/application/deployment.yaml
+```
+
+The output show that the deployment which was configured to run two replicas, deployed the pods for worker1 and worker3.
+
+```shell
+vagrant@master-node2:~$ kubectl get pods -o wide
+NAME                                READY   STATUS    RESTARTS   AGE     IP                NODE           NOMINATED NODE   READINESS GATES
+nginx-deployment-85996f8dbd-5j2mb   1/1     Running   0          7m31s   192.168.180.193   worker-node1   <none>           <none>
+nginx-deployment-85996f8dbd-pqs2l   1/1     Running   0          7m31s   192.168.50.1      worker-node3   <none>           <none>
+
 ```
