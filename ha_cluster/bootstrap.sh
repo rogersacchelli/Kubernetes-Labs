@@ -90,11 +90,7 @@ sudo kubeadm config images pull
 #sleep 20
 
 # Install Calico
-#kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/calico.yaml
-#kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml
-
-# Install Flannel
-#kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+#kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
 
 
 #kubectl taint nodes --all node-role.kubernetes.io/control-plane-

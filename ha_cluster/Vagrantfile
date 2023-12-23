@@ -17,8 +17,8 @@ Vagrant.configure("2") do |config|
 	(1..NUM_MASTER_NODES).each do |i|
       config.vm.define "master#{i}" do |master|
         master.vm.hostname = "master-node#{i}"
-        master.vm.network "private_network", ip: IP_NW_MASTER + "#{NUM_HAPROXY_NODES + i}"
-		master.vm.provision "shell", inline: <<-SHELL
+        master.vm.network "private_network", adapter:1, ip: IP_NW_MASTER + "#{NUM_HAPROXY_NODES + i}"
+        master.vm.provision "shell", inline: <<-SHELL
 	  	  sudo ip route add 10.0.0.0/8 via 10.200.1.254
 	    SHELL
         master.vm.provider "virtualbox" do |vb|
