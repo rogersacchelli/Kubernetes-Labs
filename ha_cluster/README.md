@@ -1,6 +1,6 @@
 # High Availability Cluster Lab
 
-In this lab is shown how to setup a High Availability (HA) Cluster using Kebernetes using HAProxy to distribute
+In this lab we demonstrate how to setup a High Availability (HA) Cluster using kubeadm and HAProxy to distribute
 the load between the master nodes.
 
 # Design
@@ -38,20 +38,22 @@ vagrant status
 vagrant ssh <vm_name>
 
 # Destroy Cluster
-vagrant destroy
+vagrant destroy <vm_name>
 ```
+> [!INFO]
+> Vagrantfile together to bootstrap.sh creates the required environment to jump directly to kubernetes cluster initiations.
 
-Startup configuration creates the required environment to require just kubernetes cluster start.
+## Node Deployment
 
-## Master Node
-
-In order to configure first master node, execute the following command:
+In order to configure the first master node, execute the following command:
 
 ```shell
-sudo kubeadm init --control-plane-endpoint "10.200.1.2:6443" --upload-certs --apiserver-advertise-address=10.200.1.2
+sudo kubeadm init --control-plane-endpoint "<CLUSTER_HA_IP>:6443" --upload-certs --apiserver-advertise-address=<NODE_IP_ADDRESS>
 ```
 
-The output will provide the commands required to be added to other nodes.
+In this example Cluster HA IP will be 10.200.1.254, which is the GW IP of the network facing master nodes. HAProxy is configure to distribute the traffic among the master nodes.
+
+The first master node configured will output the commands required to add the remaining nodes.
 
 ```shell
 #Your Kubernetes control-plane has initialized successfully!
@@ -72,7 +74,7 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 #You can now join any number of the control-plane node running the following command on each as root:
 
-  kubeadm join 10.200.1.2:6443 --token hvlc8v.opw36dwb0wesnort \
+  kubeadm join 10.200.1.254:6443 --token hvlc8v.opw36dwb0wesnort \
         --discovery-token-ca-cert-hash sha256:8c0c7d69826e89d8bc72c11ee1b6e4c9d49ade1c68bf4696b4b9f9813f8d74a5 \
         --control-plane --certificate-key 17d0e751e834eaa30625974bacc9fed2b6404348d9fe6f3b68ac9e59868de0c3
 
@@ -85,18 +87,19 @@ Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
 
 #Then you can join any number of worker nodes by running the following on each as root:
 
-kubeadm join 10.200.1.2:6443 --token hvlc8v.opw36dwb0wesnort \
+kubeadm join 10.200.1.254:6443 --token hvlc8v.opw36dwb0wesnort \
         --discovery-token-ca-cert-hash sha256:8c0c7d69826e89d8bc72c11ee1b6e4c9d49ade1c68bf4696b4b9f9813f8d74a5
 ```
 
 >[!WARNING]
-> Remember to include --apiserver-advertise-address=<MASTER_IP> in the master join command so that api-server is bound to correct IPs
+> Remember to include --apiserver-advertise-address=<NODE_IP> in the kubeadm join command for master and worker nodes so that api-server is bound to correct IPs
 
-### Container Network Interface
+<b>Container Network Interface</b>
+
 It's required to use a Container Network Interface, in this case use Calico. If CNI is not installed, node will not start.
 
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/calico.yaml
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
 ```
 
 ```shell
@@ -110,5 +113,39 @@ master-node1   Ready    control-plane   8m28s   v1.26.11
 
 ```
 
-## Worker Node
+Add the remaining master nodes
 
+```shell
+kubeadm join 10.200.1.254:6443 --token hvlc8v.opw36dwb0wesnort \
+        --discovery-token-ca-cert-hash sha256:8c0c7d69826e89d8bc72c11ee1b6e4c9d49ade1c68bf4696b4b9f9813f8d74a5 \
+        --control-plane --certificate-key 17d0e751e834eaa30625974bacc9fed2b6404348d9fe6f3b68ac9e59868de0c3 --apiserver-advertise-address=<NODE_IP>
+
+ ```
+
+Add the worker nodes:
+
+```shell
+kubeadm join 10.200.1.254:6443 --token hvlc8v.opw36dwb0wesnort \
+        --discovery-token-ca-cert-hash sha256:8c0c7d69826e89d8bc72c11ee1b6e4c9d49ade1c68bf4696b4b9f9813f8d74a5 --apiserver-advertise-address=<NODE_IP>
+```
+
+### Cluster Status
+
+```shell
+vagrant@master-node2:~$ kubectl get nodes
+NAME           STATUS   ROLES           AGE     VERSION
+master-node1   Ready    control-plane   77m     v1.26.12
+master-node2   Ready    control-plane   67m     v1.26.12
+master-node3   Ready    control-plane   65m     v1.26.12
+worker-node1   Ready    <none>          7m14s   v1.26.12
+worker-node2   Ready    <none>          3m30s   v1.26.12
+worker-node3   Ready    <none>          2m58s   v1.26.12
+
+vagrant@master-node2:~$ kubectl cluster-info
+Kubernetes control plane is running at https://10.200.1.254:6443
+CoreDNS is running at https://10.200.1.254:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+
+```
