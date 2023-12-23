@@ -74,11 +74,8 @@ sudo sed -i 's/            SystemdCgroup = false/            SystemdCgroup = tru
 sudo systemctl restart containerd
 sudo kubeadm config images pull
 
-# Single Master
-#sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=10.200.1.2
-
 # HA Cluster
-#sudo kubeadm init --control-plane-endpoint "10.200.1.2:6443" --upload-certs --apiserver-advertise-address=10.200.1.2
+#sudo kubeadm init --control-plane-endpoint "10.200.1.254:6443"  --upload-certs --apiserver-advertise-address=10.200.1.2
 
 
 #sleep 10
@@ -94,6 +91,7 @@ sudo kubeadm config images pull
 
 # Install Calico
 #kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.5/manifests/calico.yaml
+#kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml
 
 # Install Flannel
 #kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
@@ -109,4 +107,4 @@ echo "source <(kubectl completion bash)" >> $HOME/.bashrc
 sudo usermod -aG docker $USER
 
 
-sudo shutdown now 
+sudo reboot 
