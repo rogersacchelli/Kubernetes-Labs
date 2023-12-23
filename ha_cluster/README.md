@@ -11,6 +11,8 @@ In this example is used the "Stacked etcd Cluster" where etcd is stacked to mast
 
 ## Topology
 
+![Alt text](topology.png)
+
 ## HAProxy Load Balancing
 
 ## Services
@@ -23,9 +25,25 @@ In this example is used the "Stacked etcd Cluster" where etcd is stacked to mast
 
 Vagrant is used to deploy the virtual machines with minimum efforts. Check the Vagrantfile for details.
 
-## Master Node
+Usefull commands, at the directory containing the Vagrantfile:
 
-Once the 
+```shell
+# Start VMs
+vagrant up
+
+# Status
+vagrant status
+
+# Log into VM
+vagrant ssh <vm_name>
+
+# Destroy Cluster
+vagrant destroy
+```
+
+Startup configuration creates the required environment to require just kubernetes cluster start.
+
+## Master Node
 
 In order to configure first master node, execute the following command:
 
