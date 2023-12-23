@@ -1,7 +1,7 @@
 # High Availability Cluster Lab
 
 In this lab we demonstrate how to setup a High Availability (HA) Cluster using kubeadm and HAProxy to distribute
-the load between the master nodes.
+the load between the master nodes. We will also configure a stateless application.
 
 # Design
 
@@ -40,7 +40,7 @@ vagrant ssh <vm_name>
 # Destroy Cluster
 vagrant destroy <vm_name>
 ```
-> [!INFO]
+> [!NOTE]
 > Vagrantfile together to bootstrap.sh creates the required environment to jump directly to kubernetes cluster initiations.
 
 ## Node Deployment
@@ -146,6 +146,14 @@ Kubernetes control plane is running at https://10.200.1.254:6443
 CoreDNS is running at https://10.200.1.254:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 
 To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+```
 
+# Application Deployment
 
+We will deploy nginx as the stateless application to check the behavior of the service.
+
+Reference: https://kubernetes.io/docs/tasks/run-application/run-stateless-application-deployment/
+
+```shell
+kubectl apply -f application_deployment.yaml
 ```
