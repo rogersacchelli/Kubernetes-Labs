@@ -1,6 +1,6 @@
 # High Availability Cluster Lab
 
-In this lab we demonstrate how to setup a High Availability (HA) Cluster using kubeadm and HAProxy to distribute
+In this lab we demonstrate how to setup a High Availability (HA) Cluster using kubeadm and an external HAProxy server to distribute
 the load between the master nodes. We will also configure a stateless application.
 
 # Design
@@ -20,6 +20,12 @@ HAProxy is configured so that Load Balancing is achieved between control nodes 1
 ```shell
 frontend apiserver-master
     bind 10.200.1.254:6443
+    mode tcp
+    option tcplog
+    default_backend apiserverbackend
+
+frontend apiserver-worker
+    bind 10.200.2.254:6443
     mode tcp
     option tcplog
     default_backend apiserverbackend
